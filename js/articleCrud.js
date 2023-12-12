@@ -1,6 +1,6 @@
 //funciones para operaciones crud del usuario
-const urlApiUser = "http://localhost:8088/articles";
-const headersUser= {
+const urlApiArticle = "http://localhost:8088/articles";
+const headersArticle= {
     'Accept': 'application/json',
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${localStorage.token}`
@@ -10,9 +10,9 @@ function listarArticle(){
     validaToken();
     var settings={
         method: 'GET',
-        headers: headersUser,
+        headers: headersArticle,
     }
-    fetch(urlApiUser, settings)
+    fetch(urlApiArticle, settings)
     .then(response => response.json())
     .then(function(articles){
         
@@ -23,7 +23,8 @@ function listarArticle(){
                     <th scope="row">${article.id}</th>
                     <td>${article.nameArticle}</td>
                     <td>${article.price}</td>
-                    <td>${article.category}</td>
+                    <td>${article.stock}</td>
+                    <td>${article.category.nameCategory}</td>
                     <td>
                     <a href="#" onclick="verModificarArticle('${article.id}')" class="btn btn-outline-warning">
                         <i class="fa-solid fa-user-pen"></i>
@@ -43,14 +44,20 @@ function verModificarArticle(id){
     validaToken();
     var settings={
         method: 'GET',
-        headers:headersUser,
+        headers:headersArticle,
     }
-    fetch(urlApiUser+"/"+id, settings)
+    fetch(urlApiArticle+"/"+id, settings)
     .then(article => article.json())
     .then(function(article){
             var cadena='';
-            if(article){                
-                cadena = `
+                var settingsCategory = {
+                    method: 'GET',
+                    headers: headersArticle,
+                };
+                fetch(urlApiCategory, settingsCategory)
+                    .then(categories => categories.json())
+                    .then(function (categories) {
+                var cadena = `
                 <div class="p-3 mb-2 bg-light text-dark">
                     <h1 class="display-5"><i class="fa-solid fa-user-pen"></i> Modify Article</h1>
                 </div>
@@ -65,14 +72,17 @@ function verModificarArticle(id){
                     <input type="text" class="form-control" name="price" id="price" required value="${article.price}"> <br>
                     <label for="stock" class="form-label">Stock</label>
                     <input type="number" class="form-control" name="stock" id="stock" required value="${article.stock}"> <br>
-                    <label for="category" class="form-label">Category</label>
-                    <input type="category" class="form-control" name="category" id="category" required value="${article.category}"> <br>
+                    <label for="idCategory" class="form-label">Categoría</label>
+                        <select class="form-control" name="idCategory" id="idCategory" required>
+                        ${categories.map(category => `<option value="${category.idCategory}" ${article.category.idCategory === category.idCategory ? 'selected' : ''}>${category.nameCategory}</option>`).join('')}
+                        </select> <br>
                     <button type="button" class="btn btn-outline-warning" onclick="modificarArticle('${article.id}')">Modificar</button>
                 </form>`;
-            }
+            
             document.getElementById("contentModal").innerHTML = cadena;
             var myModal = new bootstrap.Modal(document.getElementById('modalArticle'))
             myModal.toggle();
+        });
     })
 }
 
@@ -84,9 +94,9 @@ async function modificarArticle(id){
     for(var [k, v] of formData){//convertimos los datos a json
         jsonData[k] = v;
     }
-    const request = await fetch(urlApiUser+"/"+id, {
+    const request = await fetch(urlApiArticle+"/"+id, {
         method: 'PUT',
-        headers:headersUser,
+        headers:headersArticle,
         body: JSON.stringify(jsonData)
     });
     if(request.ok){
@@ -115,9 +125,9 @@ function verArticle(id){
     validaToken();
     var settings={
         method: 'GET',
-        headers:headersUser,
+        headers:headersArticle,
     }
-    fetch(urlApiUser+"/"+id, settings)
+    fetch(urlApiArticle+"/"+id, settings)
     .then(article => article.json())
     .then(function(article){
             var cadena='';
@@ -131,7 +141,7 @@ function verArticle(id){
                     <li class="list-group-item">Description: ${article.description}</li>
                     <li class="list-group-item">Price: ${article.price}</li>
                     <li class="list-group-item">Stock: ${article.stock}</li>
-                    <li class="list-group-item">Category: ${article.category}</li>
+                    <li class="list-group-item">Stock: ${article.category.nameCategory}</li>
                 </ul>`;
               
             }
@@ -142,15 +152,17 @@ function verArticle(id){
 }
 
 async function registerArticle(){
+    var idCategory = document.getElementById("idCategory").value;
+
     var myForm = document.getElementById("registerFormArticle");
     var formData = new FormData(myForm);
     var jsonData = {};
     for(var [k, v] of formData){//convertimos los datos a json
         jsonData[k] = v;
     }
-    const request = await fetch(urlApiAuth+"/articles", {
+    const request = await fetch(urlApiArticle+ "/" + idCategory, {
         method: 'POST',
-        headers:headersAuth,
+        headers:headersArticle,
         body: JSON.stringify(jsonData)
     });
     if(request.ok){
@@ -176,7 +188,19 @@ async function registerArticle(){
 }
 
 function createArticleForm(){
-    cadena = `
+    validaToken();
+    const urlApiCategory = "http://localhost:8080/categories";
+    const settingsCategory = {
+        method: 'GET',
+        headers: headersArticle, // Asegúrate de tener esta variable definida y configurada
+    };
+    fetch(urlApiCategory, settingsCatefory)
+    .then(category => category.json())
+    .then(function (Category) {
+        var cadena = '';
+        if (category) {
+            console.log(category);
+            cadena = `
             <div class="p-3 mb-2 bg-light text-dark">
                 <h1 class="display-5"><i class="fa-solid fa-user-pen"></i>Article Register</h1>
             </div>
@@ -191,11 +215,17 @@ function createArticleForm(){
                 <input type="text" class="form-control" name="price" id="price" required> <br>
                 <label for="stock" class="form-label">Stock</label>
                 <input type="number" class="form-control" name="stock" id="stock" required> <br>
-                <label for="category" class="form-label">Category</label>
-                <input type="text" class="form-control" name="category" id="category" required> <br>
+                <label for="idCategory" class="form-label">Categoría</label>
+                        <select class="form-control" name="idCategory" id="idCategorySel" required>
+                            <option value="" disabled selected>Seleccionar</option>
+                            ${category.map(category => `<option value="${category.idCategory}">${category.nameCategory}</option>`).join('')}
+                        </select>
+                        <br>
                 <button type="button" class="btn btn-outline-info" onclick="registerArticle()">Register</button>
             </form>`;
+        }
             document.getElementById("contentModal").innerHTML = cadena;
             var myModal = new bootstrap.Modal(document.getElementById('modalArticle'))
             myModal.toggle();
+        });
 }
