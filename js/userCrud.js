@@ -134,6 +134,7 @@ function verUsuario(id){
                 <ul class="list-group">
                     <li class="list-group-item">Nombre: ${usuario.firstName}</li>
                     <li class="list-group-item">Apellido: ${usuario.lastName}</li>
+                    <li class="list-group-item">Documento: ${usuario.document}</li>
                     <li class="list-group-item">Correo: ${usuario.email}</li>
                     <li class="list-group-item">Telefono: ${usuario.phone}</li>
                 </ul>`;
@@ -193,8 +194,6 @@ function createUserForm(){
                 <input type="text" class="form-control" name="lastName" id="lastName" required> <br>
                 <label for="document"  class="form-label">Document id</label>
                 <input type="text" class="form-control" name="document" id="document" required> <br>
-                <label for="phone" class="form-label">Phone number</label>
-                <input type="text" class="form-control" name="phone" id="phone"> <br>
                 <label for="email" class="form-label">Email</label>
                 <input type="text" class="form-control" name="email" id="email" required> <br>
                 <label for="phone" class="form-label">Phone</label>
@@ -206,18 +205,4 @@ function createUserForm(){
             document.getElementById("contentModal").innerHTML = cadena;
             var myModal = new bootstrap.Modal(document.getElementById('modalUsuario'))
             myModal.toggle();
-}
-
-function eliminaUsuario(id){
-    validaToken();
-    var settings={
-        method: 'DELETE',
-        headers:headersUser,
-    }
-    fetch(urlApiUser+"/"+id,settings)
-    .then(response => response.json())
-    .then(function(data){
-        listar();
-        alertas("The user has been deleted successfully!",2)
-    })
 }
