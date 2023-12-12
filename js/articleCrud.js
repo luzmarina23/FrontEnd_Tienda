@@ -151,8 +151,8 @@ function verArticle(id){
     })
 }
 
-async function registerArticle(){
-    var idCategory = document.getElementById("idCategory").value;
+async function registerArticle(idCategoryEnlc){
+    var idCategoryEnlc = document.getElementById("idCategoryEnlc").value;
 
     var myForm = document.getElementById("registerFormArticle");
     var formData = new FormData(myForm);
@@ -160,7 +160,7 @@ async function registerArticle(){
     for(var [k, v] of formData){//convertimos los datos a json
         jsonData[k] = v;
     }
-    const request = await fetch(urlApiArticle+ "/" + idCategory, {
+    const request = await fetch(urlApiArticle+ "/" + idCategoryEnlc, {
         method: 'POST',
         headers:headersArticle,
         body: JSON.stringify(jsonData)
@@ -189,14 +189,14 @@ async function registerArticle(){
 
 function createArticleForm(){
     validaToken();
-    const urlApiCategory = "http://localhost:8080/categories";
+    const urlApiCategory = "http://localhost:8088/categories";
     const settingsCategory = {
         method: 'GET',
         headers: headersArticle, // Asegúrate de tener esta variable definida y configurada
     };
-    fetch(urlApiCategory, settingsCatefory)
+    fetch(urlApiCategory, settingsCategory)
     .then(category => category.json())
-    .then(function (Category) {
+    .then(function (category) {
         var cadena = '';
         if (category) {
             console.log(category);
@@ -215,8 +215,8 @@ function createArticleForm(){
                 <input type="text" class="form-control" name="price" id="price" required> <br>
                 <label for="stock" class="form-label">Stock</label>
                 <input type="number" class="form-control" name="stock" id="stock" required> <br>
-                <label for="idCategory" class="form-label">Categoría</label>
-                        <select class="form-control" name="idCategory" id="idCategorySel" required>
+                <label for="idCategoryEnlc" class="form-label">Categoría</label>
+                        <select class="form-control" name="idCategoryEnlc" id="idCategoryEnlc" required>
                             <option value="" disabled selected>Seleccionar</option>
                             ${category.map(category => `<option value="${category.idCategory}">${category.nameCategory}</option>`).join('')}
                         </select>
